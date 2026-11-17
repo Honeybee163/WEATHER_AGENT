@@ -1,0 +1,14 @@
+# Ignore all datasets
+data/
+
+# Ignore large trained model files
+models/saved_models/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Environment
+.env
+!.env.example
