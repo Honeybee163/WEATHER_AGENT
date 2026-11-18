@@ -14,7 +14,8 @@ load_dotenv()
 INPUT_PATH = "data/processed/training_weather.csv"
 
 FEATURE_GROUP_NAME = "weather_features"
-FEATURE_GROUP_VERSION = 1
+# Version 2: version 1 was created without stream=True
+FEATURE_GROUP_VERSION = 2
 
 # Processed column -> Hopsworks feature name
 # (Hopsworks feature names must be lowercase)
@@ -93,6 +94,9 @@ def load_features():
         keep="last"
     ).sort_values(TIME_COLUMN).reset_index(drop=True)
 
+    # Microsecond precision (avoids the ns -> us precision warning)
+    df[TIME_COLUMN] = df[TIME_COLUMN].astype("datetime64[us, UTC]")
+
     # One fixed type for every feature
     for col in df.columns.drop(TIME_COLUMN):
 
@@ -118,7 +122,10 @@ def create_feature_group(feature_store):
         version=FEATURE_GROUP_VERSION,
         description="Hourly weather and air quality features of Lahore",
         primary_key=[TIME_COLUMN],
-        event_time=TIME_COLUMN
+        event_time=TIME_COLUMN,
+        # Write through Kafka instead of writing to HDFS/Delta
+        # directly from this machine (fixes the RPC/HDFS error)
+        stream=True,
     )
 
 
@@ -128,7 +135,8 @@ def create_feature_group(feature_store):
 
 def insert_features(feature_group, df):
 
-    # Waits until Hopsworks has finished writing the data
+    # Data goes to Kafka; Hopsworks materializes it in the background.
+    # wait_for_job waits until that materialization job finishes.
     feature_group.insert(
         df,
         write_options={"wait_for_job": True}
@@ -146,7 +154,11 @@ def insert_features(feature_group, df):
 
 def retrieve_features(feature_group, expected_rows):
 
-    retrieved = feature_group.read()
+    try:
+        retrieved = feature_group.read()
+    except Exception as e:
+        print(f"Default read failed ({type(e).__name__}), retrying with Hive...")
+        retrieved = feature_group.read(read_options={"use_hive": True})
 
     retrieved = retrieved.sort_values(TIME_COLUMN).reset_index(drop=True)
 
