@@ -294,7 +294,7 @@ def save_best_models(best):
 
         target = f"{BEST_MODEL_DIR}/{row['metric']}_{row['model']}.{extension}"
 
-        shutil.copy(source, target)
+        shutil.copy2(source, target)
 
         saved_paths.append(target)
 
@@ -306,7 +306,7 @@ def save_best_models(best):
         scaler = f"{MODEL_DIR}/lstm_scaler.joblib"
 
         if os.path.exists(scaler):
-            shutil.copy(scaler, f"{BEST_MODEL_DIR}/lstm_scaler.joblib")
+            shutil.copy2(scaler, f"{BEST_MODEL_DIR}/lstm_scaler.joblib")
 
     return best
 

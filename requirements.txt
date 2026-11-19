@@ -8,3 +8,5 @@ jupyter
 python-dotenv
 statsmodels
 tensorflow
+hopsworks[python]==5.2.3
+deltalake
