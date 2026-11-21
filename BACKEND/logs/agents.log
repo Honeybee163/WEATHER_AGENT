@@ -1,0 +1,17 @@
+2026-11-20 13:34:15,464 [WARNING] forecast_agent: Latest features are 162.9 hours old (limit 6). Run the data pipeline first.
+2026-11-20 13:38:33,323 [ERROR] forecast_agent: temperature: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 13:42:33,403 [ERROR] forecast_agent: humidity: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 13:46:57,221 [ERROR] forecast_agent: precipitation: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 13:51:28,498 [ERROR] forecast_agent: uv_index: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 13:56:06,752 [ERROR] forecast_agent: AQI: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:03:47,348 [WARNING] forecast_agent: Latest features are 163.4 hours old (limit 6). Run the data pipeline first.
+2026-11-20 14:03:49,652 [ERROR] forecast_agent: temperature: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:03:51,435 [ERROR] forecast_agent: humidity: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:03:52,610 [ERROR] forecast_agent: precipitation: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:03:53,943 [ERROR] forecast_agent: uv_index: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:03:55,093 [ERROR] forecast_agent: AQI: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:20:27,883 [ERROR] forecast_agent: temperature: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:20:30,358 [ERROR] forecast_agent: humidity: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:20:32,802 [ERROR] forecast_agent: precipitation: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:20:34,990 [ERROR] forecast_agent: uv_index: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
+2026-11-20 14:20:36,455 [ERROR] forecast_agent: AQI: model forecast failed - SARIMAX needs 24 real hours in the last 48 hours
