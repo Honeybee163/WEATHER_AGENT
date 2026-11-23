@@ -183,7 +183,7 @@ def generate_llm_warnings(forecast, alerts):
             {
                 "role": "user",
                 "content": (
-                    f"Forecast for the next 24 hours:\n{values}\n\n"
+                    f"Forecast for about 24 hours from now:\n{values}\n\n"
                     f"Triggered alerts: {', '.join(alerts)}\n\n"
                     "Write one warning of 1-2 sentences for each alert, "
                     "with one practical advice. Reply with JSON only, "
