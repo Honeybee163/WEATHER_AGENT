@@ -7,7 +7,7 @@ from datetime import datetime
 from dotenv import load_dotenv
 from scipy.stats import ks_2samp
 
-from feature_store.hopswork_feature_store import (
+from feature_store.hopsworks_feature_store import (
     FEATURE_COLUMNS,
     FEATURE_GROUP_NAME,
     FEATURE_GROUP_VERSION,

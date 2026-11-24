@@ -2,7 +2,7 @@ import os
 import sys
 
 from models.baseline_model import METRICS
-from src.agents.forecast_agent import run_forecast_agent
+from agents.forecast_agent import run_forecast_agent
 
 
 # ---------------------------------------

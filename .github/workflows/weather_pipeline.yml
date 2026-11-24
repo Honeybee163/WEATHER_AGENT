@@ -97,17 +97,7 @@ jobs:
       # 8. Forecast Agent
       - name: Run Forecast Agent
         run: |
-          if [ -f agents/run_forecast.py ]; then
-            python agents/run_forecast.py
-
-          elif [ -f src/agents/run_forecast.py ]; then
-            python -m src.agents.run_forecast
-
-          else
-            echo "ERROR: Forecast entrypoint not found."
-            echo "Check BACKEND/agents/ and BACKEND/src/agents/"
-            exit 1
-          fi
+          python agents/run_forecast.py
 
       # 9. Upload Logs
       - name: Upload Pipeline Logs

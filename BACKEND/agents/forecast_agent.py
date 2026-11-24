@@ -9,7 +9,7 @@ from feature_engineering.f_engineering import (
     create_rolling_features,
     create_change_features
 )
-from feature_store.hopswork_feature_store import (
+from feature_store.hopsworks_feature_store import (
     FEATURE_COLUMNS,
     FEATURE_GROUP_NAME,
     FEATURE_GROUP_VERSION,
