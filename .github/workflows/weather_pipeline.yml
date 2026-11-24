@@ -1,0 +1,60 @@
+name: Weather Pipeline
+
+on:
+  schedule:
+    # Every hour at minute 17 (UTC). Minute 0 is the busiest time on
+    # GitHub, so runs there are delayed more often.
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+# A new run waits if the previous one is still running
+concurrency:
+  group: weather-pipeline
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ingest-and-forecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    env:
+      OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+      AQICN_API_TOKEN: ${{ secrets.AQICN_API_TOKEN }}
+      HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+      HOPSWORKS_PROJECT: ${{ secrets.HOPSWORKS_PROJECT }}
+      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      # Lahore. Can be changed in Settings > Secrets and variables > Variables
+      LATITUDE: ${{ vars.LATITUDE || '31.5204' }}
+      LONGITUDE: ${{ vars.LONGITUDE || '74.3587' }}
+      PYTHONUNBUFFERED: '1'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install requirements
+        run: pip install -r requirements.txt
+
+      - name: Data ingestion
+        run: python -m src.ingestion.main
+
+      - name: Forecast Agent
+        run: python -m src.agents.run_forecast
+
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: run-logs
+          path: |
+            logs/
+            data/processed/agent_state.json
+          if-no-files-found: ignore
+          retention-days: 7
