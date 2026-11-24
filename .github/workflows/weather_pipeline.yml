@@ -3,7 +3,9 @@ name: Weather Pipeline
 
 on:
   schedule:
+    # Run every hour at minute 17 UTC
     - cron: '17 * * * *'
+
   workflow_dispatch:
 
 concurrency:
@@ -14,7 +16,8 @@ permissions:
   contents: read
 
 jobs:
-  ingest-and-forecast:
+  weather-pipeline:
+    name: Weather Data Ingestion and Forecast
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -36,40 +39,78 @@ jobs:
       PYTHONPATH: ${{ github.workspace }}/BACKEND
 
     steps:
+
+      # 1. Checkout Repository
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 2. Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
           cache: pip
-          cache-dependency-path: BACKEND/requirements.txt
+          cache-dependency-path: requirements.txt
 
-      - name: Install Dependencies
+      # 3. Verify Requirements
+      - name: Verify Requirements File
+        run: |
+          if [ ! -f ../requirements.txt ]; then
+            echo "ERROR: Root requirements.txt not found"
+            exit 1
+          fi
+
+          echo "Requirements file found successfully"
+
+      # 4. Install Dependencies
+      - name: Install Python Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install -r ../requirements.txt
 
-      - name: Verify Project Files
+      # 5. Verify Project Structure
+      - name: Verify Project Structure
         run: |
-          test -f src/ingestion/main.py
-          test -f src/agents/run_forecast.py
-          echo "Project files verified successfully"
+          echo "Checking backend structure..."
 
+          test -f src/ingestion/main.py || {
+            echo "ERROR: src/ingestion/main.py not found"
+            exit 1
+          }
+
+          test -d agents || {
+            echo "WARNING: agents folder not found"
+          }
+
+          echo "Project structure verification completed"
+
+      # 6. Python Syntax Check
       - name: Verify Python Syntax
         run: |
-          python -m compileall -q src
+          python -m compileall -q .
 
+      # 7. Weather Data Ingestion
       - name: Run Weather Data Ingestion
         run: |
           python -m src.ingestion.main
 
+      # 8. Forecast Agent
       - name: Run Forecast Agent
         run: |
-          python -m src.agents.run_forecast
+          if [ -f agents/run_forecast.py ]; then
+            python agents/run_forecast.py
 
-      - name: Upload Logs and Agent State
+          elif [ -f src/agents/run_forecast.py ]; then
+            python -m src.agents.run_forecast
+
+          else
+            echo "ERROR: Forecast entrypoint not found."
+            echo "Check BACKEND/agents/ and BACKEND/src/agents/"
+            exit 1
+          fi
+
+      # 9. Upload Logs
+      - name: Upload Pipeline Logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
