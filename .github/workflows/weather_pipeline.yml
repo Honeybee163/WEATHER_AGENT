@@ -1,13 +1,11 @@
+
 name: Weather Pipeline
 
 on:
   schedule:
-    # Every hour at minute 17 (UTC). Minute 0 is the busiest time on
-    # GitHub, so runs there are delayed more often.
     - cron: '17 * * * *'
   workflow_dispatch:
 
-# A new run waits if the previous one is still running
 concurrency:
   group: weather-pipeline
   cancel-in-progress: false
@@ -18,9 +16,8 @@ permissions:
 jobs:
   ingest-and-forecast:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
-    # Code is inside the BACKEND folder (Linux is case sensitive)
     defaults:
       run:
         working-directory: BACKEND
@@ -31,34 +28,52 @@ jobs:
       HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
       HOPSWORKS_PROJECT: ${{ secrets.HOPSWORKS_PROJECT }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-      # Lahore. Can be changed in Settings > Secrets and variables > Variables
+
       LATITUDE: ${{ vars.LATITUDE || '31.5204' }}
       LONGITUDE: ${{ vars.LONGITUDE || '74.3587' }}
+
       PYTHONUNBUFFERED: '1'
+      PYTHONPATH: ${{ github.workspace }}/BACKEND
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
+          cache: pip
           cache-dependency-path: BACKEND/requirements.txt
 
-      - name: Install requirements
-        run: pip install -r requirements.txt
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-      - name: Data ingestion
-        run: python -m src.ingestion.main
+      - name: Verify Project Files
+        run: |
+          test -f src/ingestion/main.py
+          test -f src/agents/run_forecast.py
+          echo "Project files verified successfully"
 
-      - name: Forecast Agent
-        run: python -m src.agents.run_forecast
+      - name: Verify Python Syntax
+        run: |
+          python -m compileall -q src
 
-      - name: Upload logs
+      - name: Run Weather Data Ingestion
+        run: |
+          python -m src.ingestion.main
+
+      - name: Run Forecast Agent
+        run: |
+          python -m src.agents.run_forecast
+
+      - name: Upload Logs and Agent State
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: run-logs
+          name: weather-pipeline-logs
           path: |
             BACKEND/logs/
             BACKEND/data/processed/agent_state.json
