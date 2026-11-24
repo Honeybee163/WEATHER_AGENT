@@ -57,8 +57,10 @@ def connect_to_hopsworks():
     # this file without installing hopsworks
     import hopsworks
 
-    api_key = os.getenv("HOPSWORKS_API_KEY")
-    project_name = os.getenv("HOPSWORKS_PROJECT")
+    # strip(): a pasted secret often carries a space, quotes or a newline,
+    # which breaks the Hopsworks login
+    api_key = os.getenv("HOPSWORKS_API_KEY", "").strip().strip("\"'").strip()
+    project_name = os.getenv("HOPSWORKS_PROJECT", "").strip().strip("\"'").strip()
 
     if not api_key or not project_name:
         raise ValueError(

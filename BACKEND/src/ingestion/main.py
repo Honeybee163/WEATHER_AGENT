@@ -1,4 +1,5 @@
 import sys
+import traceback
 import numpy as np
 import pandas as pd
 
@@ -61,4 +62,5 @@ if __name__ == "__main__":
 
         # GitHub Actions marks the step as failed
         print(f"::error::Ingestion failed - {error}")
+        traceback.print_exc()
         sys.exit(1)
