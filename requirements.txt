@@ -11,3 +11,16 @@ tensorflow
 hopsworks[python]==5.2.3
 deltalake
 langgraph
+
+# Packages needed to run the hourly workflow (ingestion + Forecast Agent).
+# Keep notebook tools (jupyter, matplotlib, seaborn, shap) in a separate
+# requirements-dev.txt, they only make the hourly run slower.
+
+scipy
+joblib
+groq
+
+
+# Only needed when a metric's best model is the LSTM. It is large (several
+# minutes to install), so add it only if you need it:
+# tensorflow
