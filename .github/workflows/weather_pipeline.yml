@@ -1,4 +1,3 @@
-
 name: Weather Pipeline
 
 on:
@@ -30,6 +29,8 @@ jobs:
       AQICN_API_TOKEN: ${{ secrets.AQICN_API_TOKEN }}
       HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
       HOPSWORKS_PROJECT: ${{ secrets.HOPSWORKS_PROJECT }}
+      # Hopsworks hostname check fails on the GitHub runner
+      HOPSWORKS_HOSTNAME_VERIFICATION: 'False'
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
       LATITUDE: ${{ vars.LATITUDE || '31.5204' }}
