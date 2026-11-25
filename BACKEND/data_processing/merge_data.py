@@ -81,7 +81,9 @@ def merge_datasets():
             aqi_df,
             on="timestamp",
             direction="nearest",
-            tolerance=pd.Timedelta("5h"),
+            # The air quality station can report late (it was 7.5 h old
+            # in one run), so a wider window avoids a missing AQI
+            tolerance=pd.Timedelta("24h"),
             suffixes=("_weather", "_aqi")
         )
 

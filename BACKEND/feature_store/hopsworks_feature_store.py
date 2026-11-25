@@ -130,15 +130,62 @@ def load_features():
 # Step 3: Create Feature Group
 # ---------------------------------------
 
+def add_missing_features(feature_group):
+
+    # An older version of this feature group may exist without some
+    # columns (e.g. the pollutants). Insert then fails with
+    # "does not exist in feature group", so the missing columns are
+    # added to the existing group. Old rows keep null in them.
+
+    existing = {
+        feature.name.lower() for feature in (feature_group.features or [])
+    }
+
+    # New group: the schema is created by the first insert
+    if not existing:
+        return
+
+    missing = [
+        name for name in FEATURE_COLUMNS.values() if name not in existing
+    ]
+
+    if not missing:
+        return
+
+    from hsfs.feature import Feature
+
+    print(f"Adding missing features to feature group: {missing}")
+
+    try:
+        feature_group.append_features([
+            Feature(
+                name=name,
+                type="bigint" if name in INTEGER_COLUMNS else "double"
+            )
+            for name in missing
+        ])
+
+    except Exception as error:
+        raise RuntimeError(
+            f"Could not add {missing} to '{FEATURE_GROUP_NAME}' version "
+            f"{FEATURE_GROUP_VERSION}: {error}. Set FEATURE_GROUP_VERSION "
+            "to a new number (e.g. 3) to create a fresh feature group."
+        ) from error
+
+
 def create_feature_group(feature_store):
 
-    return feature_store.get_or_create_feature_group(
+    feature_group = feature_store.get_or_create_feature_group(
         name=FEATURE_GROUP_NAME,
         version=FEATURE_GROUP_VERSION,
         description="Hourly weather and air quality features of Lahore",
         primary_key=[TIME_COLUMN],
         event_time=TIME_COLUMN
     )
+
+    add_missing_features(feature_group)
+
+    return feature_group
 
 
 # ---------------------------------------
